@@ -9,6 +9,7 @@ export default function Layout({ children }) {
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
     { href: '/projects', label: 'Projects' },
+    { href: '/movies', label: 'Movies' },
     { href: '/contact', label: 'Contact' },
   ];
 

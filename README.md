@@ -10,6 +10,13 @@ First, install the dependencies:
 npm install
 ```
 
+Create a `.env.local` file in the root directory with your Supabase credentials:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://hyroenakanqqbeuuajoo.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_ybu7ExAmLklvO_bL_2AX2g_lKlmAIqu
+```
+
 Then, run the development server:
 
 ```bash
@@ -23,6 +30,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - **Home** (`/`) - Welcome page
 - **About** (`/about`) - About page
 - **Projects** (`/projects`) - Projects showcase
+- **Movies** (`/movies`) - Movies from Supabase database
 - **Contact** (`/contact`) - Contact information
 
 ## Build for Production
@@ -60,6 +68,8 @@ The repository includes a GitHub Actions workflow that automatically builds and 
 
 Your site will be available at `https://kacpermlodkowski.github.io` (or your GitHub username).
 
+**Note:** The Supabase credentials are already configured in the GitHub Actions workflow. For local development, create a `.env.local` file with your credentials.
+
 ### Manual Deployment
 
 If you prefer to deploy manually:
@@ -73,16 +83,20 @@ If you prefer to deploy manually:
 ```
 ├── components/
 │   └── Layout.js          # Layout component with sidebar navigation
+├── lib/
+│   └── supabase.js        # Supabase client configuration
 ├── pages/
 │   ├── _app.js           # App wrapper with Layout
 │   ├── index.js          # Home page
 │   ├── about.js          # About page
 │   ├── projects.js       # Projects page
+│   ├── movies.js         # Movies page (fetches from Supabase)
 │   └── contact.js        # Contact page
 ├── styles/
 │   ├── globals.css       # Global styles
 │   ├── Layout.module.css # Layout component styles
 │   ├── Projects.module.css # Projects page styles
+│   ├── Movies.module.css  # Movies page styles
 │   └── Contact.module.css  # Contact page styles
 └── package.json
 ```
