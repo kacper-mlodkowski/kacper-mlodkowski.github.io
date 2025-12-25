@@ -11,6 +11,8 @@
   position: fixed;
   height: 100vh;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar h2 {
@@ -23,6 +25,7 @@
 
 .navLinks {
   list-style: none;
+  flex: 1;
 }
 
 .navLinks li {
@@ -51,5 +54,49 @@
   flex: 1;
   background-color: white;
   min-height: 100vh;
+}
+
+.authSection {
+  margin-top: auto;
+  padding: 1.5rem;
+  border-top: 1px solid #34495e;
+}
+
+.userInfo {
+  margin-bottom: 1rem;
+}
+
+.userEmail {
+  font-size: 0.85rem;
+  color: #ecf0f1;
+  word-break: break-all;
+}
+
+.logoutButton,
+.loginButton {
+  width: 100%;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+}
+
+.logoutButton:hover {
+  background-color: #c0392b;
+}
+
+.loginButton {
+  background-color: #27ae60;
+}
+
+.loginButton:hover {
+  background-color: #229954;
 }
 

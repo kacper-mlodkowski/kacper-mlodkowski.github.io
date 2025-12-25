@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAuth } from '../contexts/AuthContext';
 import styles from '../styles/Layout.module.css';
 
 export default function Layout({ children }) {
   const router = useRouter();
+  const { user, signOut } = useAuth();
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -12,6 +14,11 @@ export default function Layout({ children }) {
     { href: '/movies', label: 'Movies' },
     { href: '/contact', label: 'Contact' },
   ];
+
+  // Add Users link only if authenticated
+  if (user) {
+    navLinks.push({ href: '/users', label: 'Users' });
+  }
 
   return (
     <div className={styles.container}>
@@ -29,6 +36,23 @@ export default function Layout({ children }) {
             </li>
           ))}
         </ul>
+
+        <div className={styles.authSection}>
+          {user ? (
+            <>
+              <div className={styles.userInfo}>
+                <p className={styles.userEmail}>{user.email}</p>
+              </div>
+              <button onClick={signOut} className={styles.logoutButton}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className={styles.loginButton}>
+              Login
+            </Link>
+          )}
+        </div>
       </nav>
       <main className={styles.content}>{children}</main>
     </div>
