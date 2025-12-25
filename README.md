@@ -2,6 +2,11 @@
 
 A personal website built with Next.js featuring a left sidebar navigation.
 
+## Requirements
+
+- **Node.js**: 20.0.0 or later (required for Supabase compatibility)
+- **npm**: 10.0.0 or later
+
 ## Getting Started
 
 First, install the dependencies:
