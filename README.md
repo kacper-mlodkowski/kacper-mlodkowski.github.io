@@ -15,6 +15,8 @@ First, install the dependencies:
 npm install
 ```
 
+**Note:** Some deprecation warnings may appear from transitive dependencies (dependencies of dependencies). These are being addressed through package updates and npm overrides. The application will function correctly despite these warnings.
+
 Create a `.env.local` file in the root directory with your Supabase credentials:
 
 ```env
