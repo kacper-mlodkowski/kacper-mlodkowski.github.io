@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,16 +11,45 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const [sidebarHidden, setSidebarHidden] = useState(false);
+
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebarHidden');
+      if (saved !== null) {
+        setSidebarHidden(JSON.parse(saved));
+      }
+    }
+  }, []);
+
+  // Save sidebar state to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarHidden', JSON.stringify(sidebarHidden));
+    }
+  }, [sidebarHidden]);
 
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/movies', label: 'Movies' },
   ];
 
+  const toggleSidebar = () => {
+    setSidebarHidden(!sidebarHidden);
+  };
+
   return (
     <div className={styles.container}>
-      <nav className={styles.sidebar}>
-        <h2>Menu</h2>
+      <button
+        onClick={toggleSidebar}
+        className={`${styles.toggleButton} ${sidebarHidden ? styles.toggleButtonHidden : ''}`}
+        aria-label={sidebarHidden ? 'Show menu' : 'Hide menu'}
+        title={sidebarHidden ? 'Show menu' : 'Hide menu'}
+      >
+        {sidebarHidden ? '☰' : '☰'}
+      </button>
+      <nav className={`${styles.sidebar} ${sidebarHidden ? styles.hidden : ''}`}>
         <ul className={styles.navLinks}>
           {navLinks.map((link) => (
             <li key={link.href}>
@@ -51,7 +80,7 @@ export default function Layout({ children }: LayoutProps) {
           )}
         </div>
       </nav>
-      <main className={styles.content}>{children}</main>
+      <main className={`${styles.content} ${sidebarHidden ? styles.contentFullWidth : ''}`}>{children}</main>
     </div>
   );
 }

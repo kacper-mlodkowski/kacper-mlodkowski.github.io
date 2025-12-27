@@ -7,21 +7,20 @@
   width: 250px;
   background-color: #2c3e50;
   color: white;
-  padding: 2rem 0;
+  padding: 3.5rem 0 2rem 0;
   position: fixed;
   height: 100vh;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  transition: transform 0.3s ease-in-out;
+  z-index: 100;
 }
 
-.sidebar h2 {
-  padding: 0 1.5rem;
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
-  border-bottom: 2px solid #34495e;
-  padding-bottom: 1rem;
+.sidebar.hidden {
+  transform: translateX(-100%);
 }
+
 
 .navLinks {
   list-style: none;
@@ -57,6 +56,13 @@
   width: calc(100vw - 250px);
   max-width: none;
   box-sizing: border-box;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.contentFullWidth {
+  margin-left: 0;
+  width: 100vw;
+  padding-left: calc(1rem + 40px + 1rem); /* left margin + button width + spacing */
 }
 
 .authSection {
@@ -101,5 +107,33 @@
 
 .loginButton:hover {
   background-color: #229954;
+}
+
+.toggleButton {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  width: 40px;
+  height: 40px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 101;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, left 0.3s ease-in-out;
+}
+
+.toggleButton:hover {
+  background-color: #34495e;
+}
+
+.toggleButtonHidden {
+  left: 1rem;
 }
 
