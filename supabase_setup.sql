@@ -42,14 +42,44 @@ ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist (to avoid errors on re-run)
 DROP POLICY IF EXISTS "Allow authenticated users to insert" ON "user";
+DROP POLICY IF EXISTS "Allow users to insert own record" ON "user";
 DROP POLICY IF EXISTS "Allow public read access" ON "user";
 
--- Allow authenticated users to insert
-CREATE POLICY "Allow authenticated users to insert"
+-- Create a function to insert user profile (runs with SECURITY DEFINER to bypass RLS)
+-- This allows the insert even if the user doesn't have an active session yet
+CREATE OR REPLACE FUNCTION create_user_profile(
+  user_id UUID,
+  first_name TEXT,
+  last_name TEXT,
+  date_of_birth DATE
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Verify that the user_id exists in auth.users
+  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = user_id) THEN
+    RAISE EXCEPTION 'User does not exist in auth.users';
+  END IF;
+  
+  INSERT INTO "user" (id, first_name, last_name, date_of_birth)
+  VALUES (user_id, first_name, last_name, date_of_birth)
+  ON CONFLICT (id) DO NOTHING;
+END;
+$$;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT, DATE) TO authenticated;
+GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT, DATE) TO anon;
+
+-- Allow authenticated users to insert their own record (id must match auth.uid())
+CREATE POLICY "Allow users to insert own record"
 ON "user"
 FOR INSERT
 TO authenticated
-WITH CHECK (true);
+WITH CHECK (auth.uid() = id);
 
 -- Allow public read (optional - change if you want)
 CREATE POLICY "Allow public read access"

@@ -67,20 +67,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // If signup was successful and we have user data, insert into user table
     if (authData.user && firstName && lastName && dateOfBirth) {
-      const { error: userError } = await supabase
-        .from('user')
-        .insert([
-          {
-            id: authData.user.id,
-            first_name: firstName,
-            last_name: lastName,
-            date_of_birth: dateOfBirth,
-          },
-        ]);
+      // Try using the database function first (bypasses RLS)
+      const { error: functionError } = await supabase.rpc('create_user_profile', {
+        user_id: authData.user.id,
+        first_name: firstName,
+        last_name: lastName,
+        date_of_birth: dateOfBirth,
+      });
 
-      if (userError) {
-        console.error('Error creating user record:', userError);
-        throw new Error(`Failed to create user profile: ${userError.message}`);
+      // If function doesn't exist or fails, try direct insert
+      if (functionError) {
+        console.warn('Function call failed, trying direct insert:', functionError);
+        const { error: userError } = await supabase
+          .from('user')
+          .insert([
+            {
+              id: authData.user.id,
+              first_name: firstName,
+              last_name: lastName,
+              date_of_birth: dateOfBirth,
+            },
+          ]);
+
+        if (userError) {
+          console.error('Error creating user record:', userError);
+          throw new Error(`Failed to create user profile: ${userError.message}`);
+        }
       }
     }
 
