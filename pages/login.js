@@ -7,6 +7,9 @@ import styles from '../styles/Login.module.css';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -22,11 +25,43 @@ export default function Login() {
 
     try {
       if (isSignUp) {
-        await signUp(email, password);
+        // Validate signup fields
+        if (!firstName.trim()) {
+          setError('First name is required');
+          setLoading(false);
+          return;
+        }
+        if (!lastName.trim()) {
+          setError('Last name is required');
+          setLoading(false);
+          return;
+        }
+        if (!dateOfBirth) {
+          setError('Date of birth is required');
+          setLoading(false);
+          return;
+        }
+        
+        // Validate date of birth (must be in the past)
+        const birthDate = new Date(dateOfBirth);
+        const today = new Date();
+        if (birthDate >= today) {
+          setError('Date of birth must be in the past');
+          setLoading(false);
+          return;
+        }
+
+        await signUp(email, password, firstName.trim(), lastName.trim(), dateOfBirth);
         setSuccess('Sign up successful! Please check your email to verify your account.');
+        // Clear form
+        setFirstName('');
+        setLastName('');
+        setDateOfBirth('');
+        setEmail('');
+        setPassword('');
       } else {
         await signIn(email, password);
-        router.push('/users');
+        router.push('/movies');
       }
     } catch (err) {
       setError(err.message || 'An error occurred');
@@ -63,6 +98,46 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className={styles.form}>
+            {isSignUp && (
+              <>
+                <div className={styles.formGroup}>
+                  <label htmlFor="firstName">First Name</label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required={isSignUp}
+                    placeholder="John"
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="lastName">Last Name</label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required={isSignUp}
+                    placeholder="Doe"
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="dateOfBirth">Date of Birth</label>
+                  <input
+                    id="dateOfBirth"
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    required={isSignUp}
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+              </>
+            )}
+
             <div className={styles.formGroup}>
               <label htmlFor="email">Email</label>
               <input
@@ -104,6 +179,12 @@ export default function Login() {
                 setIsSignUp(!isSignUp);
                 setError(null);
                 setSuccess(null);
+                // Clear signup-specific fields when switching to login
+                if (isSignUp) {
+                  setFirstName('');
+                  setLastName('');
+                  setDateOfBirth('');
+                }
               }}
               className={styles.switchButton}
             >

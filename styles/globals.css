@@ -4,11 +4,20 @@
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .sidebar {
@@ -55,10 +64,13 @@ body {
 
 .content {
   margin-left: 250px;
-  padding: 3rem;
+  padding: 1.5rem;
   flex: 1;
   background-color: white;
   min-height: 100vh;
+  width: calc(100% - 250px);
+  max-width: none;
+  box-sizing: border-box;
 }
 
 .content h1 {

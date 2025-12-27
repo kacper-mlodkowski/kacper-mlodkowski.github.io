@@ -44,13 +44,34 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
+  const signUp = async (email, password, firstName, lastName, dateOfBirth) => {
+    // First, sign up the user in Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
     });
-    if (error) throw error;
-    return data;
+    if (authError) throw authError;
+
+    // If signup was successful and we have user data, insert into user table
+    if (authData.user && firstName && lastName && dateOfBirth) {
+      const { error: userError } = await supabase
+        .from('user')
+        .insert([
+          {
+            id: authData.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            date_of_birth: dateOfBirth,
+          },
+        ]);
+
+      if (userError) {
+        console.error('Error creating user record:', userError);
+        throw new Error(`Failed to create user profile: ${userError.message}`);
+      }
+    }
+
+    return authData;
   };
 
   const signOut = async () => {

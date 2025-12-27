@@ -9,21 +9,13 @@ export default function Layout({ children }) {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/projects', label: 'Projects' },
     { href: '/movies', label: 'Movies' },
-    { href: '/contact', label: 'Contact' },
   ];
-
-  // Add Users link only if authenticated
-  if (user) {
-    navLinks.push({ href: '/users', label: 'Users' });
-  }
 
   return (
     <div className={styles.container}>
       <nav className={styles.sidebar}>
-        <h2>Navigation</h2>
+        <h2>Menu</h2>
         <ul className={styles.navLinks}>
           {navLinks.map((link) => (
             <li key={link.href}>

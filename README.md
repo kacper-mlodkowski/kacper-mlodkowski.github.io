@@ -35,10 +35,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Pages
 
 - **Home** (`/`) - Welcome page
-- **About** (`/about`) - About page
-- **Projects** (`/projects`) - Projects showcase
-- **Movies** (`/movies`) - Movies from Supabase database
-- **Contact** (`/contact`) - Contact information
+- **Movies** (`/movies`) - Movies from Supabase database (logged-in users can add movies)
+- **Login** (`/login`) - Sign up or login
 
 ## Build for Production
 
@@ -92,18 +90,17 @@ If you prefer to deploy manually:
 │   └── Layout.js          # Layout component with sidebar navigation
 ├── lib/
 │   └── supabase.js        # Supabase client configuration
+├── contexts/
+│   └── AuthContext.js     # Authentication context provider
 ├── pages/
-│   ├── _app.js           # App wrapper with Layout
+│   ├── _app.js           # App wrapper with Layout and AuthProvider
 │   ├── index.js          # Home page
-│   ├── about.js          # About page
-│   ├── projects.js       # Projects page
-│   ├── movies.js         # Movies page (fetches from Supabase)
-│   └── contact.js        # Contact page
+│   ├── movies.js         # Movies page (fetches from Supabase, add movies if logged in)
+│   └── login.js          # Login/Sign up page
 ├── styles/
 │   ├── globals.css       # Global styles
 │   ├── Layout.module.css # Layout component styles
-│   ├── Projects.module.css # Projects page styles
 │   ├── Movies.module.css  # Movies page styles
-│   └── Contact.module.css  # Contact page styles
+│   └── Login.module.css   # Login page styles
 └── package.json
 ```

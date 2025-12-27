@@ -50,10 +50,13 @@
 
 .content {
   margin-left: 250px;
-  padding: 3rem;
+  padding: 1.5rem;
   flex: 1;
   background-color: white;
   min-height: 100vh;
+  width: calc(100vw - 250px);
+  max-width: none;
+  box-sizing: border-box;
 }
 
 .authSection {
