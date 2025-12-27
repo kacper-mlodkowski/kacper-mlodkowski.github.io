@@ -1,30 +1,53 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
 import Head from 'next/head';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import styles from '../styles/Movies.module.css';
 
+interface Movie {
+  id: number;
+  title: string;
+  imdb_url?: string | null;
+  image_url?: string | null;
+  user_id?: string | null;
+  created_at?: string;
+}
+
+interface FormData {
+  title: string;
+  imdb_url: string;
+  image_url: string;
+}
+
+interface TMDBMovie {
+  id: number;
+  title: string;
+  release_date?: string;
+  poster_path?: string | null;
+  imdb_id?: string;
+}
+
 export default function Movies() {
   const { user } = useAuth();
-  const [movies, setMovies] = useState([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [formData, setFormData] = useState({
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     imdb_url: '',
     image_url: '',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<TMDBMovie[]>([]);
   const [searching, setSearching] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const searchTimeoutRef = useRef(null);
-  const autocompleteRef = useRef(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autocompleteRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     fetchMovies();
@@ -53,8 +76,8 @@ export default function Movies() {
 
   // Close autocomplete when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (autocompleteRef.current && !autocompleteRef.current.contains(event.target)) {
+    function handleClickOutside(event: Event) {
+      if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
       }
     }
@@ -88,7 +111,7 @@ export default function Movies() {
     };
   }, [searchQuery]);
 
-  async function searchMovies(query) {
+  async function searchMovies(query: string) {
     try {
       setSearching(true);
       // Using TMDB API (free API key required - get one at https://www.themoviedb.org/settings/api)
@@ -114,7 +137,7 @@ export default function Movies() {
     }
   }
 
-  async function selectMovie(movie) {
+  async function selectMovie(movie: TMDBMovie) {
     try {
       setSearching(true);
       // Movie object from TMDB already has all the info we need
@@ -177,13 +200,13 @@ export default function Movies() {
       }
 
       console.log(`Fetched ${data?.length || 0} movies`);
-      setMovies(data || []);
+      setMovies((data as Movie[]) || []);
       
       // If no data and no error, it might be RLS blocking
       if (!data || data.length === 0) {
         console.warn('No data returned. This might be due to Row Level Security (RLS) policies.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching movies:', err);
       setError(err.message || 'Failed to fetch movies');
     } finally {
@@ -191,13 +214,14 @@ export default function Movies() {
     }
   }
 
-  async function handleDelete(movieId) {
+  async function handleDelete(movieId: number) {
     if (!user) {
       setError('You must be logged in to delete movies');
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete "${movies.find(m => m.id === movieId)?.title}"?`)) {
+    const movie = movies.find(m => m.id === movieId);
+    if (!confirm(`Are you sure you want to delete "${movie?.title}"?`)) {
       return;
     }
 
@@ -215,7 +239,7 @@ export default function Movies() {
       // Refresh the list
       await fetchMovies();
       setSubmitSuccess('Movie deleted successfully');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting movie:', err);
       setSubmitError(err.message || 'Failed to delete movie');
     } finally {
@@ -223,7 +247,7 @@ export default function Movies() {
     }
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitError(null);
     setSubmitSuccess(null);
@@ -263,7 +287,7 @@ export default function Movies() {
       setSearchQuery('');
       // Refresh the list
       await fetchMovies();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error inserting movie:', err);
       setSubmitError(err.message || 'Failed to add movie');
     } finally {
@@ -303,7 +327,7 @@ export default function Movies() {
                     id="title"
                     type="text"
                     value={searchQuery || formData.title}
-                    onChange={(e) => {
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
                       setSearchQuery(value);
                       setFormData({ ...formData, title: value });
@@ -436,9 +460,9 @@ export default function Movies() {
                         alt={movie.title}
                         className={styles.movieImage}
                         onError={(e) => {
-                          e.target.style.display = 'none';
-                          const placeholder = e.target.parentElement.querySelector(`.${styles.movieImagePlaceholder}`);
-                          if (placeholder) placeholder.style.display = 'flex';
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          const placeholder = (e.target as HTMLImageElement).parentElement?.querySelector(`.${styles.movieImagePlaceholder}`);
+                          if (placeholder) (placeholder as HTMLElement).style.display = 'flex';
                         }}
                       />
                     ) : null}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,13 +11,13 @@ export default function Login() {
   const [lastName, setLastName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -63,7 +63,7 @@ export default function Login() {
         await signIn(email, password);
         router.push('/movies');
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
@@ -106,7 +106,7 @@ export default function Login() {
                     id="firstName"
                     type="text"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
                     required={isSignUp}
                     placeholder="John"
                   />
@@ -118,7 +118,7 @@ export default function Login() {
                     id="lastName"
                     type="text"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
                     required={isSignUp}
                     placeholder="Doe"
                   />
@@ -130,7 +130,7 @@ export default function Login() {
                     id="dateOfBirth"
                     type="date"
                     value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setDateOfBirth(e.target.value)}
                     required={isSignUp}
                     max={new Date().toISOString().split('T')[0]}
                   />
@@ -144,7 +144,7 @@ export default function Login() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
                 placeholder="your.email@example.com"
               />
@@ -156,7 +156,7 @@ export default function Login() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
                 minLength={6}
