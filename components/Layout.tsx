@@ -33,6 +33,7 @@ export default function Layout({ children }: LayoutProps) {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/movies', label: 'Movies' },
+    ...(user ? [{ href: '/investments', label: 'Investments' }] : []),
   ];
 
   const toggleSidebar = () => {

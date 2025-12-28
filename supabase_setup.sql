@@ -176,3 +176,124 @@ FOR SELECT
 TO public
 USING (true);
 
+-- Create wallets table for investment tracking
+CREATE TABLE IF NOT EXISTS wallets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create assets table for individual investments
+CREATE TABLE IF NOT EXISTS assets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  wallet_id UUID NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
+  symbol TEXT NOT NULL,
+  asset_type TEXT NOT NULL CHECK (asset_type IN ('stock', 'etf', 'crypto', 'other')),
+  quantity NUMERIC(15, 8) NOT NULL DEFAULT 0,
+  average_price NUMERIC(15, 4),
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS on wallets
+ALTER TABLE wallets ENABLE ROW LEVEL SECURITY;
+
+-- Enable RLS on assets
+ALTER TABLE assets ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own wallets" ON wallets;
+DROP POLICY IF EXISTS "Users can insert own wallets" ON wallets;
+DROP POLICY IF EXISTS "Users can update own wallets" ON wallets;
+DROP POLICY IF EXISTS "Users can delete own wallets" ON wallets;
+DROP POLICY IF EXISTS "Users can view own assets" ON assets;
+DROP POLICY IF EXISTS "Users can insert own assets" ON assets;
+DROP POLICY IF EXISTS "Users can update own assets" ON assets;
+DROP POLICY IF EXISTS "Users can delete own assets" ON assets;
+
+-- Wallets policies: users can only see/modify their own wallets
+CREATE POLICY "Users can view own wallets"
+ON wallets
+FOR SELECT
+TO authenticated
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own wallets"
+ON wallets
+FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own wallets"
+ON wallets
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own wallets"
+ON wallets
+FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);
+
+-- Assets policies: users can only see/modify assets in their own wallets
+CREATE POLICY "Users can view own assets"
+ON assets
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM wallets
+    WHERE wallets.id = assets.wallet_id
+    AND wallets.user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can insert own assets"
+ON assets
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM wallets
+    WHERE wallets.id = assets.wallet_id
+    AND wallets.user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can update own assets"
+ON assets
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM wallets
+    WHERE wallets.id = assets.wallet_id
+    AND wallets.user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM wallets
+    WHERE wallets.id = assets.wallet_id
+    AND wallets.user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can delete own assets"
+ON assets
+FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM wallets
+    WHERE wallets.id = assets.wallet_id
+    AND wallets.user_id = auth.uid()
+  )
+);
+
